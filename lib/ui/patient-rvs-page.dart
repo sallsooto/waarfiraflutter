@@ -78,6 +78,7 @@ class _PatientRvsPageState extends State<PatientRvsPage> {
         title: Text('Mes Consultations', style: TextStyle(color: MyAppColors.primaryColor),),
         centerTitle: true,
         backgroundColor: MyAppColors.secondaryColor,
+        iconTheme: new IconThemeData(color: MyAppColors.primaryColor),
       ),
       drawer: AppDrawer(),
       body: Column(

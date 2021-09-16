@@ -44,89 +44,92 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    //var size = MediaQuery.of(context).size;
-    //double itemWidth = size.width;
+    var size = MediaQuery.of(context).size;
+    double itemWidth = size.width;
+    double itemHeight = size.height;
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Accueil'),
+        appBar: AppBar(
+        title: Text('Accueil',style: TextStyle(color: MyAppColors.primaryColor)),
         centerTitle: true,
-        backgroundColor: MyAppColors.primaryColor,
+        backgroundColor: MyAppColors.secondaryColor,
+        iconTheme: new IconThemeData(color: MyAppColors.primaryColor),
       ),
       drawer: AppDrawer(),
-      body: Column(
-        children: [
-         Container(
-           margin: EdgeInsets.only(top: 50),
-           child: Center(
-             child: Column(
-               mainAxisSize: MainAxisSize.max,
-               children: [
-                 Container(
-                   child:new ImageButton(
-                     children: <Widget>[],
-                     unpressedImage: Image.asset('assets/images/proches.jpg'),
-                     pressedImage:  Image.asset('assets/images/proches.jpg'),
-                     width: 150,
-                     height: 150,
-                     onTap: () async {
-                       userG=await userDetailsService.getStoredUserDetails().then((value) => value);
-                       if (userG!=null) {
-                         patientG=await patientService.findByUserId(userG.id).then((value) => value);
-                         Navigator.push(
-                           context,
-                           MaterialPageRoute(
-                             //builder: (context) => PatientProchePage(patientG)
-                               builder: (context) => ListPatients()
-                           ),
-                         );
-                       }
-                     },
-                   ),
-                 ),
-                 Text('Mes proches', style: TextStyle(
-                     fontSize: 25, color: MyAppColors.secondaryColor, fontWeight: FontWeight.bold),
-                 ),
-                 SizedBox(height: 20),
-                 Container(
-                   child:new ImageButton(
-                     children: <Widget>[],
-                     unpressedImage: Image.asset('assets/images/appointment.png'),
-                     pressedImage:  Image.asset('assets/images/appointment.png'),
-                     width: 150,
-                     height: 150,
-                     onTap: (){
+      resizeToAvoidBottomInset: false,
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
+              margin: EdgeInsets.only(top: 10),
+              child: Center(
+                child: Column(
+                  children: [
+                    Container(
+                      child:new ImageButton(
+                        children: <Widget>[],
+                        unpressedImage: Image.asset('assets/images/png/1.png'),
+                        pressedImage:  Image.asset('assets/images/png/1.png'),
+                        width: itemWidth/2,
+                        height: itemWidth/2,
+                        onTap: () async {
+                          userG=await userDetailsService.getStoredUserDetails().then((value) => value);
+                          if (userG!=null) {
+                            patientG=await patientService.findByUserId(userG.id).then((value) => value);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                //builder: (context) => PatientProchePage(patientG)
+                                  builder: (context) => ListPatients()
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                    Text('Mes proches', style: TextStyle(
+                        fontSize: 25, color: MyAppColors.secondaryColor, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 20),
+                    Container(
+                      child:new ImageButton(
+                        children: <Widget>[],
+                        unpressedImage: Image.asset('assets/images/png/2.png'),
+                        pressedImage:  Image.asset('assets/images/png/2.png'),
+                        width: itemWidth/2,
+                        height: itemWidth/2,
+                        onTap: (){
 
-                       Navigator.pushNamed(context, Routes.specialites);
-                     },
-                   ),
-                 ),
-                 Text('Rendez-Vous', style: TextStyle(
-                     fontSize: 25, color: MyAppColors.secondaryColor, fontWeight: FontWeight.bold),
-                 ),
-                 SizedBox(height: 20),
-                 Container(
-                   child:new ImageButton(
-                     children: <Widget>[],
-                     unpressedImage: Image.asset('assets/images/consultation.jpg'),
-                     pressedImage:  Image.asset('assets/images/consultation.jpg'),
-                     width: 150,
-                     height: 150,
-                     onTap: () async {
-                         userG=await userDetailsService.getStoredUserDetails().then((value) => value);
-                        if(userG!=null){
-                          print("email du user "+userG.email);
-                          patientG=await patientService.findByUserId(userG.id).then((value) => value);
-                          print('le patient id dans home page '+patientG.id.toString());
-                        }
-                        else print('le user est null');
-                       Navigator.push(
-                         context,
-                         MaterialPageRoute(
-                             builder: (context) => PatientRvsPage(patientId: patientG.id,)
-                         ),
-                       );
+                          Navigator.pushNamed(context, Routes.specialites);
+                        },
+                      ),
+                    ),
+                    Text('Rendez-Vous', style: TextStyle(
+                        fontSize: 25, color: MyAppColors.secondaryColor, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 20),
+                    Container(
+                      child:new ImageButton(
+                        children: <Widget>[],
+                        unpressedImage: Image.asset('assets/images/png/3.png'),
+                        pressedImage:  Image.asset('assets/images/png/3.png'),
+                        width: itemWidth/2,
+                        height: itemWidth/2,
+                        onTap: () async {
+                          userG=await userDetailsService.getStoredUserDetails().then((value) => value);
+                          if(userG!=null){
+                            print("email du user "+userG.email);
+                            patientG=await patientService.findByUserId(userG.id).then((value) => value);
+                            print('le patient id dans home page '+patientG.id.toString());
+                          }
+                          else print('le user est null');
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => PatientRvsPage(patientId: patientG.id,)
+                            ),
+                          );
 
-                       /*Rv rv=new Rv();
+                          /*Rv rv=new Rv();
                        await rvService.getRvByMedecinAndStatus(1151, 'VALID')
                                 .then((value) => {
                                   print('la reponse'),
@@ -140,18 +143,19 @@ class _HomePageState extends State<HomePage> {
 
 
                        });*/
-                       //Navigator.pushNamed(context, Routes.specialites);
-                     },
-                   ),
-                 ),
-                 Text('Consultations', style: TextStyle(
-                     fontSize: 25, color: MyAppColors.secondaryColor, fontWeight: FontWeight.bold),
-                 ),
-               ],
-             ),
-           ),
-         ),
-        ],
+                          //Navigator.pushNamed(context, Routes.specialites);
+                        },
+                      ),
+                    ),
+                    Text('Consultations', style: TextStyle(
+                        fontSize: 25, color: MyAppColors.secondaryColor, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

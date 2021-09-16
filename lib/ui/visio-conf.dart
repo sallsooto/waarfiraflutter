@@ -1,16 +1,32 @@
+import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:jitsi_meet/jitsi_meet.dart';
+import 'package:waarfira/core/model/app-file.dart';
+import 'package:waarfira/core/model/consultation-file.dart';
 import 'package:waarfira/core/model/consultation.dart';
 import 'package:waarfira/core/model/rv.dart';
+import 'package:waarfira/core/service/app-file-service.dart';
+import 'package:waarfira/core/service/consultation-file-service.dart';
+import 'package:waarfira/core/service/consultation-service.dart';
 import 'package:waarfira/core/util/MyAppColors.dart';
 import 'package:waarfira/ui/app-drawer.dart';
 
+import 'package:path/path.dart' as path;
+import 'package:file_picker/file_picker.dart';
+
+import 'package:path_provider/path_provider.dart';
+
+import 'package:flutter/services.dart';
+
+
 Rv rvG;
 Consultation consultationG;
+
 class VisioConf extends StatefulWidget {
   final Consultation consultation;
   VisioConf({@required this.consultation}){
@@ -20,8 +36,11 @@ class VisioConf extends StatefulWidget {
   @override
   _VisioConfState createState() => _VisioConfState();
 }
-
+enum Upload { fichier, dossier }
 class _VisioConfState extends State<VisioConf> {
+  final _appFileService = new AppFileService();
+  final _consultationFileService = new ConsultationFileService();
+  AppFile fichier;
   final serverText = TextEditingController();
   final roomText = TextEditingController(text: "plugintestroom");
   final subjectText = TextEditingController(text: "My Plugin Test Meeting");
@@ -33,6 +52,10 @@ class _VisioConfState extends State<VisioConf> {
   bool isAudioMuted = true;
   bool isVideoMuted = true;
 
+  List<File> filesSelected=[];
+  List<ConsultationFile> filesConsultationSelected=[];
+  Uint8List bytes;
+
   @override
   void initState() {
     super.initState();
@@ -40,6 +63,7 @@ class _VisioConfState extends State<VisioConf> {
     roomText.text= consultationG.roomName;
     subjectText.text = "Consultation par "+consultationG.rv.medecin.fullName;
     nameText.text = consultationG.rv!=null?consultationG.rv.patient.fullName:"";
+    _fetchConsultationFiles();
     JitsiMeet.addListener(JitsiMeetingListener(
         onConferenceWillJoin: _onConferenceWillJoin,
         onConferenceJoined: _onConferenceJoined,
@@ -102,7 +126,10 @@ class _VisioConfState extends State<VisioConf> {
     );
   }
 
+  Upload _typeUpload = Upload.fichier;
+
   Widget meetConfig() {
+
     return SingleChildScrollView(
       child: Column(
         children: <Widget>[
@@ -186,8 +213,121 @@ class _VisioConfState extends State<VisioConf> {
             ),
           ),
           SizedBox(
-            height: 48.0,
+            height: 15.0,
           ),
+
+          Column(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children:  <Widget>[
+              Container(
+                margin:EdgeInsets.only(right: 50),
+                child: Text("Fichiers/Dossiers", style: TextStyle(fontWeight: FontWeight.bold),),
+              ),
+              SizedBox(
+                height: 5.0,
+              ),
+
+            GestureDetector(
+              onTap: () =>{
+                _fetchConsultationFiles(),
+                print("nombre de fichiers joints:"+filesConsultationSelected.length.toString()),
+              showModalBottomSheet<void>(
+
+              // context and builder are
+              // required properties in this widget
+              context: context,
+              builder: (BuildContext context) {
+               return StatefulBuilder(
+              builder: (context, setState) {
+                return SingleChildScrollView(
+                  scrollDirection: Axis.vertical,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text('Les fichiers et dossiers partagés'),
+                        for ( var item in filesConsultationSelected )
+                          Container(
+                            height: 50,
+                            margin: EdgeInsets.only(left: 20.0),
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(item.fileName),
+                                    GestureDetector(
+                                      onTap: ()=>{
+                                      },
+                                      child: Icon(
+                                        Icons.insert_drive_file_rounded,
+                                        color: MyAppColors.secondaryColor,
+                                        size: 40.0,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 5.0)
+
+
+                              ],
+                            ),
+
+                          ),
+                        GestureDetector(
+                          onTap: ()=>{
+                            _loadFile(),
+                          },
+                          child: Icon(
+                            Icons.add_circle,
+                            color: Colors.black,
+                            size: 40.0,
+                          ),
+                        ),
+
+                        // This goes to the build method
+
+                        RadioListTile<Upload>(
+                          title: const Text('Fichier'),
+                          value: Upload.fichier,
+                          groupValue: _typeUpload,
+                          onChanged: (Upload value) { setState(() { _typeUpload = value; print(_typeUpload); }); },
+                        ),
+                        RadioListTile<Upload>(
+                          title: const Text('Dossier'),
+                          value: Upload.dossier,
+                          groupValue: _typeUpload,
+                          onChanged: (Upload value) { setState(() { _typeUpload = value; print(_typeUpload); }); },
+                        ),
+
+
+                      ],
+                    ),
+                );
+              },
+
+                );
+
+              },
+              )
+              },
+              child: Container(
+                width: 52.0,
+                height: 52.0,
+                margin: EdgeInsets.only(right: 55),
+                decoration: new BoxDecoration(
+                  color: MyAppColors.secondaryColor,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.upload_file_sharp,
+                  color: Colors.black,
+                  size: 40.0,
+                ),
+              ),
+            ),
+
+
+            ],
+          )
         ],
       ),
     );
@@ -211,9 +351,51 @@ class _VisioConfState extends State<VisioConf> {
     });
   }
 
-  _joinMeeting() async {
-    String serverUrl = serverText.text.trim().isEmpty ? null : serverText.text;
+  //Chargement de fichiers pour le partage de dossiers
+  _loadFile() async {
+    FilePickerResult result = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
+      type: FileType.custom,
+      allowedExtensions: ['jpg', 'pdf', 'doc', 'docx', 'png', 'jpeg', 'txt'],
+    );
 
+    if(result != null) {
+      List<File> files = result.paths.map((path) => File(path)).toList();
+      if(files.length >0){
+        filesSelected=files;
+        print("la taille:"+filesSelected.length.toString());
+        filesSelected.forEach((file) async {
+          print("le chemin "+file.path);
+          await file.readAsBytes().then((value) => {
+              bytes = Uint8List.fromList(value),
+              print('reading of bytes is completed'),
+          });
+          await _appFileService.createAppFile(new AppFile(
+          name: path.basename(file.path),
+          fDataContentType: "document",
+          fData:bytes
+          )).then((value) async => {
+            print("un fichier créé "+ value.toString()),
+            fichier = AppFile.fromJson(jsonDecode(value.body)),
+            if(fichier!=null)
+              await _consultationFileService.createConsultationFile(new
+                ConsultationFile(fileId: fichier.id,
+                  consultation: consultationG,
+                  fileName: fichier.name,
+                  ownerId: consultationG.rv.patient.id))
+          }).then((consultationFile) => {
+            print("un fichier consultation créé"+ consultationFile.toString()),
+          });
+        });
+
+      }
+
+    } else {
+      // User canceled the picker
+    }
+  }
+
+  _joinMeeting() async {
     // Enable or disable any feature flag here
     // If feature flag are not provided, default values will be used
     // Full list of feature flags (and defaults) available in the README
@@ -288,4 +470,19 @@ class _VisioConfState extends State<VisioConf> {
   _onError(error) {
     debugPrint("_onError broadcasted: $error");
   }
+
+  _fetchConsultationFiles() async {
+    await _consultationFileService.getAllConsultationFiles().then((response) =>
+    {
+      if(response.statusCode == HttpStatus.ok){
+        setState(() {
+          filesConsultationSelected = (jsonDecode(response.body).
+          map((i) => ConsultationFile.fromJson(i)).toList())
+              .cast<ConsultationFile>().toList();
+        }),
+      }
+    });
+  }
+
+
 }

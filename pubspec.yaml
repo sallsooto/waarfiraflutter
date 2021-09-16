@@ -39,6 +39,10 @@ dependencies:
   syncfusion_flutter_gauges: ^19.1.56
   geolocator: ^7.1.0
   jitsi_meet: ^4.0.0
+  flutter_bootstrap: "^2.0.0"
+  file_picker: ^4.0.2
+  open_file: ^3.2.1
+  path_provider: ^2.0.3
 
 dev_dependencies:
   flutter_test:
@@ -57,13 +61,10 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    - assets/images/png/1.png
+    - assets/images/png/2.png
+    - assets/images/png/3.png
     - assets/images/logo.png
-    - assets/images/logo.gif
-    - assets/images/drawerdeco.gif
-    - assets/images/logo_menu.gif
-    - assets/images/appointment.png
-    - assets/images/proches.jpg
-    - assets/images/consultation.jpg
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

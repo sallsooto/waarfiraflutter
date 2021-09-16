@@ -100,12 +100,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
+    var size = MediaQuery.of(context).size;
+    double itemWidth = size.width;
+    double itemHeight = size.height;
     return Scaffold(
       /**appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
@@ -118,9 +115,9 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             Container(
               alignment: AlignmentDirectional.center,
-              margin: EdgeInsets.fromLTRB(0, 100, 15, 0),
-              height: 130,
-              width: 130,
+              margin: EdgeInsets.only(top:100),
+              height: itemHeight/3.5,
+              width: itemWidth/3.5,
               child: new Image.asset('assets/images/logo.png'),
             ),
             Container(
